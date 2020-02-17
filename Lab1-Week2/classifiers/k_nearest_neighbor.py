@@ -91,7 +91,8 @@ class KNearestNeighbor(object):
         num_test = X.shape[0]
         num_train = self.X_train.shape[0]
         dists = np.zeros((num_test, num_train))
-        for i in range(num_test):
+        for i in tqdm(range(num_test)):
+            dists[i] = np.sqrt(np.sum(np.square(X[i] - self.X_train), axis=1))
             #######################################################################
             # TODO:                                                               #
             # Compute the l2 distance between the ith test point and all training #
@@ -125,7 +126,10 @@ class KNearestNeighbor(object):
         # HINT: Try to formulate the l2 distance using matrix multiplication    #
         #       and two broadcast sums.                                         #
         #########################################################################
-        pass
+        aSumSquare = np.sum(np.square(X),axis=1);
+        bSumSquare = np.sum(np.square(self.X_train),axis=1);
+        mul = np.dot(X,self.X_train.T);
+        dists = np.sqrt(aSumSquare[:,np.newaxis]+bSumSquare-2*mul)
         #########################################################################
         #                         END OF YOUR CODE                              #
         #########################################################################
@@ -156,8 +160,13 @@ class KNearestNeighbor(object):
             # testing point, and use self.y_train to find the labels of these       #
             # neighbors. Store these labels in closest_y.                           #
             # Hint: Look up the function numpy.argsort.                             #
-            #########################################################################
-            pass
+            # #########################################################################
+            temp = dists[i].argsort()[:k]
+            for ind in temp:
+                # print(self.y_train[temp])
+                closest_y.append(self.y_train[ind])
+          
+            # print(closest_y)
             #########################################################################
             # TODO:                                                                 #
             # Now that you have found the labels of the k nearest neighbors, you    #
@@ -165,10 +174,28 @@ class KNearestNeighbor(object):
             # Store this label in y_pred[i]. Break ties by choosing the smaller     #
             # label.                                                                #
             #########################################################################
-            pass
+            # print(closest_y)
+            # y_pred[i] = np.bincount(closest_y).argmax()
+            y_pred[i] =top_k(closest_y)
+            # print(y_pred[i])
             #########################################################################
             #                           END OF YOUR CODE                            # 
             #########################################################################
-
+        # print(y_pred)
         return y_pred
+
+from collections import Counter
+
+
+def top_k(numbers, k=2):
+    c = Counter(numbers)
+    most_common = [key for key, val in c.most_common(k)]
+    if(len(most_common)==1):
+        return most_common[0]
+    if c[most_common[0]] == c[most_common[1]]:
+        # print(most_common)
+        # print(c)
+        return min(most_common)
+    return most_common[0]
+
 
