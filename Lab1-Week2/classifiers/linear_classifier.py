@@ -28,6 +28,7 @@ class LinearClassifier(object):
         A list containing the value of the loss function at each training iteration.
         """
         num_train, dim = X.shape
+        print(X.shape)
         num_classes = np.max(y) + 1 # assume y takes values 0...K-1 where K is number of classes
         if self.W is None:
             # lazily initialize W
@@ -50,7 +51,12 @@ class LinearClassifier(object):
             # Hint: Use np.random.choice to generate indices. Sampling with         #
             # replacement is faster than sampling without replacement.              #
             #########################################################################
-            pass
+            idx = np.random.choice(num_train,batch_size)
+            # print(idx)
+            for i in range(len(idx)):
+                X_batch[i] = X[idx[i]]
+                y_batch[i] = y[idx[i]]
+            y_batch = y_batch.astype(int)
             #########################################################################
             #                       END OF YOUR CODE                                #
             #########################################################################
@@ -63,7 +69,7 @@ class LinearClassifier(object):
             # TODO:                                                                 #
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
-            pass
+            self.W -= learning_rate*grad
             #########################################################################
             #                       END OF YOUR CODE                                #
             #########################################################################
@@ -91,12 +97,15 @@ class LinearClassifier(object):
         # TODO:                                                                   #
         # Implement this method. Store the predicted labels in y_pred.            #
         ###########################################################################
-        pass
+        probs = get_probs(np.dot(X,self.W))
+        preds = np.argmax(probs,axis=1)
+        y_pred = preds
         ###########################################################################
         #                           END OF YOUR CODE                              #
         ###########################################################################
         return y_pred.T
   
+
     def loss(self, X_batch, y_batch, reg):
         """
         Compute the loss function and its derivative. 
